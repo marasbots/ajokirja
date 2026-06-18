@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a1a18">
+<title>Ajopäiväkirja</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f5f4f0; color: #1a1a18; min-height: 100vh; }
+  header { background: #fff; border-bottom: 1px solid #e0dfd8; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header .sub { font-size: 13px; color: #888; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 1.5rem; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .stat { background: #fff; border-radius: 10px; border: 1px solid #e0dfd8; padding: 1rem 1.2rem; }
+  .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .stat-value { font-size: 21px; font-weight: 600; color: #1a1a18; }
+  .stat-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+  .card { background: #fff; border: 1px solid #e0dfd8; border-radius: 12px; padding: 1.2rem 1.4rem; margin-bottom: 1rem; }
+  .card h2 { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+  .quick-section { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #f0efe8; }
+  .quick-label { font-size: 12px; color: #888; margin-bottom: 8px; }
+  .quick-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+  .quick-btn { padding: 6px 12px; border: 1px solid #ddd; border-radius: 20px; font-size: 13px; cursor: pointer; background: #fafaf8; color: #1a1a18; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
+  .quick-btn:hover, .quick-btn.active { background: #1a1a18; color: #fff; border-color: #1a1a18; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .field label { font-size: 12px; color: #666; display: block; margin-bottom: 4px; }
+  .field input, .field select { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 7px; font-size: 14px; background: #fafaf8; color: #1a1a18; outline: none; font-family: inherit; }
+  .field input:focus, .field select:focus { border-color: #888; background: #fff; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .btn { padding: 9px 18px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; cursor: pointer; background: #fff; color: #1a1a18; font-family: inherit; transition: background 0.15s; }
+  .btn:hover { background: #f0efe8; }
+  .btn-primary { background: #1a1a18; color: #fff; border-color: #1a1a18; }
+  .btn-primary:hover { background: #333; }
+  .btn-danger { color: #c0392b; border-color: #f5c6c6; }
+  .btn-danger:hover { background: #fff5f5; }
+  .btn-sm { padding: 6px 12px; font-size: 13px; }
+  .places-section { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid #f0efe8; }
+  .places-section.open { display: block; }
+  .place-list { margin: 10px 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .place-tag { display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: #f0efe8; border-radius: 20px; font-size: 13px; }
+  .place-tag button { background: none; border: none; cursor: pointer; color: #aaa; font-size: 14px; line-height: 1; padding: 0 2px; }
+  .place-tag button:hover { color: #c0392b; }
+  .place-add-row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .place-add-row input { flex: 1; min-width: 200px; padding: 7px 10px; border: 1px solid #ddd; border-radius: 7px; font-size: 13px; font-family: inherit; background: #fafaf8; }
+  .place-add-row select { padding: 7px 10px; border: 1px solid #ddd; border-radius: 7px; font-size: 13px; font-family: inherit; background: #fafaf8; }
+  .table-wrap { background: #fff; border: 1px solid #e0dfd8; border-radius: 12px; overflow-x: auto; }
+  .table-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #e0dfd8; flex-wrap: wrap; gap: 8px; }
+  .table-header h2 { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-row select { padding: 6px 10px; border: 1px solid #ddd; border-radius: 7px; font-size: 13px; background: #fafaf8; font-family: inherit; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead { background: #f8f7f3; }
+  th { padding: 10px 12px; text-align: left; font-weight: 600; font-size: 11px; color: #888; border-bottom: 1px solid #e0dfd8; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+  td { padding: 10px 12px; border-bottom: 1px solid #f0efe8; color: #1a1a18; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #fafaf8; }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 99px; font-weight: 500; white-space: nowrap; }
+  .badge-tyoajo { background: #e1f5ee; color: #0f6e56; }
+  .badge-tyomatka { background: #e6f1fb; color: #185fa5; }
+  .badge-juna { background: #eeedfe; color: #534ab7; }
+  .badge-ei { background: #f1efe8; color: #5f5e5a; }
+  .km-total { font-weight: 600; }
+  .row-actions { display: flex; gap: 4px; }
+  .icon-btn { background: none; border: none; cursor: pointer; color: #bbb; font-size: 15px; padding: 2px 5px; border-radius: 5px; transition: all 0.15s; }
+  .icon-btn:hover { color: #1a1a18; background: #f0efe8; }
+  .icon-btn.del:hover { color: #c0392b; background: #fff5f5; }
+  .empty-state { text-align: center; padding: 3rem; color: #aaa; font-size: 14px; }
+  .empty-icon { font-size: 32px; margin-bottom: 8px; }
+  .month-header td { background: #f8f7f3; font-weight: 600; color: #666; font-size: 12px; padding: 6px 12px; }
+  .edit-input { width: 100%; padding: 5px 7px; border: 1px solid #888; border-radius: 5px; font-size: 13px; font-family: inherit; }
+  footer { text-align: center; padding: 2rem; color: #aaa; font-size: 12px; line-height: 1.6; }
+  .hint { background: #fff8e6; border: 1px solid #f5e3b3; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #7a5c10; margin-bottom: 1rem; line-height: 1.5; }
+  @media (max-width: 640px) {
+    .stats { grid-template-columns: 1fr 1fr; }
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+    th:nth-child(2), td:nth-child(2) { display: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>🚗 Ajopäiväkirja</h1>
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <span class="sub" id="sync-status" style="cursor:pointer" onclick="toggleSync()">🔒 synkronointi pois</span>
+    <span class="sub" id="header-date"></span>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="hint">
+    <strong>Korvaustyypit:</strong> "Työajo" = työnantaja maksaa kilometrikorvauksen (verovapaa, 0,55 €/km 2026). "Junalippu" = todellinen lipun hinta euroina. "Työmatka (oma vähennys)" = kodin ja työpaikan väli, jonka vähennät itse veroilmoituksessa (halvimman kulkutavan mukaan, omavastuu 900 €).
+  </div>
+
+  <div class="card" id="tl-card">
+    <h2>📍 Tuo Google Timeline -matkat</h2>
+    <p style="font-size:13px;color:#666;margin-bottom:10px;line-height:1.55">
+      Vie puhelimestasi: <strong>Google Maps → profiilikuva → "Aikajana" (Your Timeline) → ⋯ → Sijainti- ja yksityisyysasetukset → "Vie aikajanan tiedot"</strong>. Tästä syntyy <code>Timeline.json</code>. Avaa se alta, niin näet matkasi listana ja valitset mitkä kirjataan. Kaikki tapahtuu omalla koneellasi — tietoja ei lähetetä mihinkään.
+    </p>
+    <button class="btn btn-primary" onclick="document.getElementById('tl-file').click()">📂 Avaa Timeline.json</button>
+    <input type="file" id="tl-file" accept=".json,application/json" style="display:none" onchange="tlImport(event)">
+    <div id="tl-results" style="margin-top:14px"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Matkat</div><div class="stat-value" id="s-count">0</div><div class="stat-sub">kpl valittuna jaksona</div></div>
+    <div class="stat"><div class="stat-label">Työajo (km)</div><div class="stat-value" id="s-tyoajo-km">0</div><div class="stat-sub" id="s-tyoajo-eur">0 €</div></div>
+    <div class="stat"><div class="stat-label">Junaliput</div><div class="stat-value" id="s-juna-eur">0 €</div><div class="stat-sub" id="s-juna-count">0 matkaa</div></div>
+    <div class="stat"><div class="stat-label">Työmatka-km (oma)</div><div class="stat-value" id="s-tyomatka-km">0</div><div class="stat-sub">veroilmoitukseen</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Lisää matka</h2>
+    <div class="quick-section">
+      <div class="quick-label">⚡ Pikareitti:</div>
+      <div class="quick-btns" id="quick-routes"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Päivämäärä</label><input type="date" id="f-date"></div>
+      <div class="field"><label>Korvaustyyppi</label>
+        <select id="f-type" onchange="onTypeChange()">
+          <option value="tyoajo">🚗 Työajo (työnantaja maksaa km)</option>
+          <option value="juna">🚂 Junalippu (€)</option>
+          <option value="tyomatka">🏠 Työmatka (oma vähennys)</option>
+          <option value="ei">Ei korvausta / muu</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label>Lähtöpaikka</label>
+        <select id="f-from" onchange="onPlaceSelect('from')"><option value="">— valitse tai kirjoita alla —</option></select>
+        <input type="text" id="f-from-custom" placeholder="tai kirjoita itse..." style="margin-top:5px">
+      </div>
+      <div class="field">
+        <label>Kohde / työmaa</label>
+        <select id="f-to" onchange="onPlaceSelect('to')"><option value="">— valitse tai kirjoita alla —</option></select>
+        <input type="text" id="f-to-custom" placeholder="tai kirjoita itse..." style="margin-top:5px">
+      </div>
+    </div>
+    <div class="grid3">
+      <div class="field" id="field-km"><label>Kilometrit (meno)</label>
+        <input type="number" id="f-km" placeholder="km" min="0" step="0.1">
+        <button type="button" class="btn btn-sm" style="margin-top:5px;width:100%" onclick="autoKm()" id="autokm-btn">📏 Laske km automaattisesti</button>
+      </div>
+      <div class="field" id="field-dir"><label>Suunta</label>
+        <select id="f-dir">
+          <option value="meno">Vain meno</option>
+          <option value="meno-paluu">Meno + paluu (sama korvaus)</option>
+          <option value="split">Meno + paluu — jaettu (työnantaja + oma vähennys)</option>
+        </select>
+      </div>
+      <div class="field" id="field-cost" style="display:none"><label>Lipun hinta (€)</label><input type="number" id="f-cost" placeholder="€" min="0" step="0.01"></div>
+      <div class="field"><label>Auto / rekisteri</label><input type="text" id="f-car" placeholder="esim. ABC-123"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Lisätieto</label><input type="text" id="f-note" placeholder="vapaaehtoinen, esim. kellonaika"></div>
+      <div class="field"><label>&nbsp;</label><button class="btn btn-primary" style="width:100%" onclick="addEntry()" id="add-btn">+ Lisää matka</button></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-sm" onclick="exportCSV()">⬇ CSV (Excel)</button>
+      <button class="btn btn-sm" onclick="exportEmployerReport()">📄 Raportti työnantajalle</button>
+      <button class="btn btn-sm" onclick="toggleTax()">📊 Veroyhteenveto</button>
+      <button class="btn btn-sm" onclick="exportJSON()">💾 Varmuuskopio (JSON)</button>
+      <button class="btn btn-sm" onclick="document.getElementById('json-import').click()">📂 Palauta JSON</button>
+      <button class="btn btn-sm" onclick="togglePlaces()">⚙ Hallitse paikkoja</button>
+      <button class="btn btn-sm" onclick="toggleSync()">☁ Synkronointi</button>
+      <button class="btn btn-danger btn-sm" onclick="clearAll()">🗑 Tyhjennä</button>
+      <input type="file" id="json-import" accept=".json" style="display:none" onchange="importJSON(event)">
+    </div>
+
+    <div class="places-section" id="tax-section">
+      <div style="font-size:13px; font-weight:600; color:#555; margin-bottom:8px;">📊 Veroyhteenveto</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+        <label style="font-size:13px">Verovuosi:
+          <select id="tax-year" onchange="onTaxYearChange()" style="padding:6px 10px;border:1px solid #ddd;border-radius:7px;font-family:inherit;background:#fafaf8"></select>
+        </label>
+        <label style="font-size:13px;display:flex;align-items:center;gap:5px"><input type="checkbox" id="tax-incl-train" onchange="renderTaxSummary()"> Laske junaliput mukaan vähennykseen</label>
+      </div>
+      <div style="background:#e1f5ee;border-radius:8px;padding:10px 12px;margin-bottom:12px">
+        <label style="font-size:13px;display:flex;align-items:center;gap:6px;font-weight:600;color:#0f6e56"><input type="checkbox" id="tax-erityisala" onchange="onErityisalaChange()"> 🏗 Erityisala (rakennusala) — ei omavastuuta eikä ylärajaa</label>
+        <div style="font-size:12px;color:#0f6e56;margin-top:4px">Päivittäiset matkat kotoa vaihtuville työmaille vähennetään tulonhankkimiskuluina täysimääräisesti (0,27 €/km omalla autolla 2026). Edellytys: työnantaja ei ole korvannut, työmaa yli 15 km kotoa, sama työmaa enintään 3 vuotta.</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <label style="font-size:12px;color:#666">Omavastuu €<br><input type="number" id="tax-omavastuu" step="1" style="width:90px;padding:6px;border:1px solid #ddd;border-radius:6px" oninput="renderTaxSummary()"></label>
+        <label style="font-size:12px;color:#666">Enimmäismäärä €<br><input type="number" id="tax-max" step="1" style="width:90px;padding:6px;border:1px solid #ddd;border-radius:6px" oninput="renderTaxSummary()"></label>
+        <label style="font-size:12px;color:#666">Oman auton €/km<br><input type="number" id="tax-kmrate" step="0.01" style="width:90px;padding:6px;border:1px solid #ddd;border-radius:6px" oninput="renderTaxSummary()"></label>
+      </div>
+      <div id="tax-summary" style="font-size:14px;line-height:1.7"></div>
+      <div style="margin-top:10px"><button class="btn btn-sm" onclick="exportTaxSummary()">⬇ Vie yhteenveto (CSV)</button></div>
+      <p style="font-size:11px;color:#aaa;margin-top:8px">Vahvistetut luvut: 2024–2025 omavastuu 900 €, enimmäisvähennys 7 000 € (vero.fi). 2026 luvut ovat alustavia — tarkista vero.fi:stä ja korjaa tarvittaessa. Työmatkavähennys lasketaan halvimman kulkuneuvon mukaan; oman auton käyttö hyväksytään vain tietyin ehdoin. Tämä on suuntaa-antava arvio, ei veroneuvontaa.</p>
+    </div>
+
+    <div class="places-section" id="sync-section">
+      <div style="font-size:13px; font-weight:600; color:#555; margin-bottom:8px;">☁ Pilvisynkronointi</div>
+      <p style="font-size:13px;color:#666;line-height:1.5;margin-bottom:10px">Anna sama salasana jokaisessa laitteessa (puhelin + kone), niin matkat synkronoituvat automaattisesti. Salasana asetetaan myös Cloudflaren asetuksiin (SYNC_TOKEN). Toimii vain julkaistussa versiossa.</p>
+      <div class="place-add-row">
+        <input type="password" id="sync-token" placeholder="Synkronointisalasana">
+        <button class="btn btn-sm" onclick="saveSyncToken()">Tallenna &amp; yhdistä</button>
+        <button class="btn btn-sm" onclick="doSync()">Synkronoi nyt</button>
+      </div>
+    </div>
+
+    <div class="places-section" id="places-section">
+      <div style="font-size:13px; font-weight:600; color:#555; margin-bottom:8px;">Tallennetut paikat &amp; työmaat</div>
+      <div class="place-list" id="place-list"></div>
+      <div class="place-add-row">
+        <input type="text" id="new-place-name" placeholder="Uuden paikan nimi, esim. As Oy Säästöjurvala, Tampere">
+        <select id="new-place-cat">
+          <option value="koti">🏠 Koti</option>
+          <option value="tyomaa">🏗 Työmaa</option>
+          <option value="toimisto">🏢 Toimisto</option>
+          <option value="asema">🚉 Asema</option>
+          <option value="muu">Muu</option>
+        </select>
+        <button class="btn btn-sm" onclick="addPlace()">+ Lisää</button>
+      </div>
+      <div style="margin-top:8px"><button class="btn btn-sm" onclick="geocodeAllPlaces()">📍 Hae koordinaatit paikoille</button>
+      <span id="geo-status" style="font-size:12px;color:#888;margin-left:8px"></span></div>
+      <p style="font-size:11px;color:#aaa;margin-top:6px">Kun paikoilla on koordinaatit, "Laske km automaattisesti" osaa hakea ajomatkan kahden paikan välille.</p>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-header">
+      <h2>Matkahistoria</h2>
+      <div class="filter-row">
+        <select id="filter-month" onchange="render()"><option value="">Kaikki kuukaudet</option></select>
+        <select id="filter-type" onchange="render()">
+          <option value="">Kaikki tyypit</option>
+          <option value="tyoajo">Työajo</option>
+          <option value="juna">Junalippu</option>
+          <option value="tyomatka">Työmatka</option>
+          <option value="ei">Ei korvausta</option>
+        </select>
+      </div>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Pvm</th><th>Lähtö</th><th>Kohde</th><th>Tyyppi</th><th>Auto</th><th>Km</th><th>Yht. km</th><th>€</th><th>Lisätieto</th><th></th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    Tiedot tallennetaan selaimen muistiin. Tee JSON-varmuuskopio säännöllisesti — se palautuu täydellisenä.<br>
+    Kilometrikorvaus 2026: 0,55 €/km (yli 5000 km 0,49 €/km). 2025: 0,59 €/km. Tarkista ajantasaiset arvot vero.fi:stä.<br>
+    Säilytä ajopäiväkirja 6 vuotta verovuoden päättymisestä. | Ctrl+Enter lisää matkan.
+  </footer>
+</div>
+
+<script>
+const KEY = 'ajopk_v4';
+let entries = JSON.parse(localStorage.getItem(KEY) || '[]');
+
+['ajopk_v3','ajopk_v2'].forEach(oldKey => {
+  if (entries.length === 0) {
+    const o = localStorage.getItem(oldKey);
+    if (o) {
+      const arr = JSON.parse(o);
+      entries = arr.map(e => ({
+        id: e.id || Date.now().toString() + Math.random(),
+        date: e.date, from: e.from, to: e.to,
+        km: e.km || 0, dir: e.dir || 'meno', totalKm: e.totalKm || e.km || 0,
+        type: e.type === 'juna' ? 'juna' : (e.type === 'tyomaa' ? 'tyoajo' : 'ei'),
+        cost: 0, car: e.car || '', note: e.note || ''
+      }));
+    }
+  }
+});
+
+let places = JSON.parse(localStorage.getItem('ajopk_places') || 'null');
+if (!places) {
+  places = [
+    { id: 'p1', name: 'Koti, Vantaa (Tikkurila)', cat: 'koti' },
+    { id: 'p2', name: 'Viljo Sohkasen katu, Tampere', cat: 'tyomaa' },
+    { id: 'p3', name: 'Tikkurilan asema', cat: 'asema' },
+    { id: 'p4', name: 'Tampereen asema', cat: 'asema' },
+    { id: 'p5', name: 'Laakson sairaala, Helsinki', cat: 'tyomaa' },
+  ];
+  savePlaces();
+}
+
+const QUICK_ROUTES = [
+  { label: '🚂 Tikkurila → Tampere (juna)', from: 'Koti, Vantaa (Tikkurila)', to: 'Viljo Sohkasen katu, Tampere', type: 'juna', cost: 0, dir: 'meno' },
+  { label: '🚂 Tampere → Tikkurila (juna)', from: 'Viljo Sohkasen katu, Tampere', to: 'Koti, Vantaa (Tikkurila)', type: 'juna', cost: 0, dir: 'meno' },
+  { label: '🚗 Koti → Laakson sairaala', from: 'Koti, Vantaa (Tikkurila)', to: 'Laakson sairaala, Helsinki', type: 'tyoajo', km: 20.4, dir: 'meno-paluu' },
+];
+
+const PREFILLED = [
+  { date: '2025-04-14', from: 'Koti, Vantaa (Tikkurila)', to: 'Viljo Sohkasen katu, Tampere', type: 'juna', note: 'lähtö 08:16 saap 09:53' },
+  { date: '2025-04-15', from: 'Viljo Sohkasen katu, Tampere', to: 'Koti, Vantaa (Tikkurila)', type: 'juna', note: 'lähtö 14:35 saap 16:35' },
+  { date: '2025-04-28', from: 'Koti, Vantaa (Tikkurila)', to: 'Viljo Sohkasen katu, Tampere', type: 'juna', note: 'lähtö 06:36 saap 07:58' },
+  { date: '2025-04-28', from: 'Viljo Sohkasen katu, Tampere', to: 'Koti, Vantaa (Tikkurila)', type: 'juna', note: 'lähtö 15:04 saap 16:42' },
+  { date: '2025-05-22', from: 'Koti, Vantaa (Tikkurila)', to: 'Viljo Sohkasen katu, Tampere', type: 'juna', note: 'lähtö 06:36 saap 07:58' },
+  { date: '2025-05-26', from: 'Koti, Vantaa (Tikkurila)', to: 'Viljo Sohkasen katu, Tampere', type: 'juna', note: 'lähtö 06:36 saap 07:58' },
+  { date: '2025-05-26', from: 'Viljo Sohkasen katu, Tampere', to: 'Koti, Vantaa (Tikkurila)', type: 'juna', note: 'lähtö 15:04 saap 16:42' },
+  { date: '2025-06-01', from: 'Koti, Vantaa (Tikkurila)', to: 'Viljo Sohkasen katu, Tampere', type: 'juna', note: 'lähtö 06:36 saap 07:58' },
+  { date: '2025-06-02', from: 'Viljo Sohkasen katu, Tampere', to: 'Koti, Vantaa (Tikkurila)', type: 'juna', note: 'lähtö 16:04 saap 17:42' },
+];
+if (entries.length === 0) {
+  entries = PREFILLED.map(e => ({ id: 'pre_'+e.date+'_'+Math.random().toString(36).slice(2), km:0, dir:'meno', totalKm:0, cost:0, car:'', ...e }));
+  save();
+}
+
+const typeLabel = { tyoajo:'Työajo', juna:'Junalippu', tyomatka:'Työmatka', ei:'Ei korvausta' };
+const typeBadge = { tyoajo:'badge-tyoajo', juna:'badge-juna', tyomatka:'badge-tyomatka', ei:'badge-ei' };
+const monthNames = ['Tammikuu','Helmikuu','Maaliskuu','Huhtikuu','Toukokuu','Kesäkuu','Heinäkuu','Elokuu','Syyskuu','Lokakuu','Marraskuu','Joulukuu'];
+const catIcon = { koti:'🏠', tyomaa:'🏗', toimisto:'🏢', asema:'🚉', muu:'📍' };
+
+function rateForYear(y) { return y >= 2026 ? 0.55 : 0.59; }
+function today() { return new Date().toISOString().split('T')[0]; }
+function save() { localStorage.setItem(KEY, JSON.stringify(entries)); scheduleSync(); }
+function savePlaces() { localStorage.setItem('ajopk_places', JSON.stringify(places)); scheduleSync(); }
+function touch(o) { o.updatedAt = Date.now(); if (o.deleted == null) o.deleted = 0; return o; }
+
+// normalize records for sync (add updatedAt/deleted if missing)
+entries.forEach(e => { if (e.updatedAt == null) e.updatedAt = Date.now(); if (e.deleted == null) e.deleted = 0; });
+places.forEach(p => { if (p.updatedAt == null) p.updatedAt = Date.now(); if (p.deleted == null) p.deleted = 0; });
+
+// ===== SYNC =====
+const SYNC_KEY = 'ajopk_sync';
+let syncCfg = JSON.parse(localStorage.getItem(SYNC_KEY) || '{"token":""}');
+let syncTimer = null, syncing = false, pendingSync = false;
+function saveSyncCfg() { localStorage.setItem(SYNC_KEY, JSON.stringify(syncCfg)); }
+function setSyncStatus(s) { const el = document.getElementById('sync-status'); if (el) el.textContent = s; }
+function toggleSync() {
+  const s = document.getElementById('sync-section'); s.classList.toggle('open');
+  if (s.classList.contains('open')) document.getElementById('sync-token').value = syncCfg.token || '';
+}
+function saveSyncToken() {
+  syncCfg.token = document.getElementById('sync-token').value.trim();
+  saveSyncCfg();
+  if (syncCfg.token) { setSyncStatus('☁ yhdistetään…'); doSync(); }
+  else setSyncStatus('🔒 synkronointi pois');
+}
+function mergeRecords(local, remote) {
+  const map = {};
+  local.forEach(r => map[r.id] = r);
+  (remote || []).forEach(r => { const ex = map[r.id]; if (!ex || (r.updatedAt||0) >= (ex.updatedAt||0)) map[r.id] = r; });
+  return Object.values(map);
+}
+async function doSync() {
+  if (!syncCfg.token) { setSyncStatus('🔒 synkronointi pois'); return; }
+  if (location.protocol === 'file:') { setSyncStatus('⚠ vaatii julkaistun version'); return; }
+  if (!navigator.onLine) { setSyncStatus('⚠ ei verkkoa'); return; }
+  if (syncing) { pendingSync = true; return; }
+  syncing = true; setSyncStatus('☁ synkronoidaan…');
+  try {
+    const res = await fetch('/api/sync', { method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ token: syncCfg.token, entries, places }) });
+    if (res.status === 401) { setSyncStatus('⚠ väärä salasana'); syncing = false; return; }
+    if (!res.ok) throw new Error('status '+res.status);
+    const d = await res.json();
+    entries = mergeRecords(entries, d.entries);
+    places = mergeRecords(places, d.places);
+    localStorage.setItem(KEY, JSON.stringify(entries));
+    localStorage.setItem('ajopk_places', JSON.stringify(places));
+    if (!editingId) { renderPlacesUI(); render(); }
+    setSyncStatus('✓ synkronoitu ' + new Date().toLocaleTimeString('fi-FI',{hour:'2-digit',minute:'2-digit'}));
+  } catch(e) { setSyncStatus('⚠ ei yhteyttä'); }
+  syncing = false;
+  if (pendingSync) { pendingSync = false; doSync(); }
+}
+function scheduleSync() {
+  if (!syncCfg.token || location.protocol === 'file:') return;
+  clearTimeout(syncTimer); syncTimer = setTimeout(doSync, 1200);
+}
+
+document.getElementById('f-date').value = today();
+document.getElementById('header-date').textContent = new Date().toLocaleDateString('fi-FI', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+document.addEventListener('keydown', e => { if (e.key==='Enter' && (e.ctrlKey||e.metaKey)) addEntry(); });
+
+function renderPlacesUI() {
+  ['f-from','f-to'].forEach(id => {
+    const sel = document.getElementById(id); const cur = sel.value;
+    const cats = [...new Set(places.map(p => p.cat))];
+    let html = '<option value="">— valitse tai kirjoita alla —</option>';
+    const live = places.filter(p => !p.deleted);
+    cats.forEach(cat => {
+      const group = live.filter(p => p.cat===cat);
+      if (!group.length) return;
+      html += '<optgroup label="'+(catIcon[cat]||'📍')+' '+cat+'">';
+      group.forEach(p => html += '<option '+(p.name===cur?'selected':'')+'>'+p.name+'</option>');
+      html += '</optgroup>';
+    });
+    sel.innerHTML = html;
+  });
+  document.getElementById('place-list').innerHTML = places.filter(p=>!p.deleted).map(p =>
+    '<span class="place-tag">'+(catIcon[p.cat]||'📍')+' '+p.name+' <button onclick="removePlace(\''+p.id+'\')">✕</button></span>').join('');
+  document.getElementById('quick-routes').innerHTML = QUICK_ROUTES.map((r,i) =>
+    '<button class="quick-btn" onclick="applyQuickRoute('+i+')">'+r.label+'</button>').join('');
+}
+function addPlace() {
+  const name = document.getElementById('new-place-name').value.trim();
+  if (!name) return;
+  places.push(touch({ id:'p'+Date.now(), name, cat:document.getElementById('new-place-cat').value, deleted:0 }));
+  savePlaces(); document.getElementById('new-place-name').value=''; renderPlacesUI();
+}
+function removePlace(id) { const p = places.find(x=>x.id===id); if(p){ p.deleted=1; touch(p); } savePlaces(); renderPlacesUI(); }
+function togglePlaces() { document.getElementById('places-section').classList.toggle('open'); }
+function onPlaceSelect(f) { if (document.getElementById('f-'+f).value) document.getElementById('f-'+f+'-custom').value=''; }
+
+// ===== AUTOMAATTISET KILOMETRIT =====
+async function geocodeName(name) {
+  try {
+    const r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=fi&accept-language=fi&q=' + encodeURIComponent(name));
+    const d = await r.json();
+    if (d && d.length) return { lat: parseFloat(d[0].lat), lon: parseFloat(d[0].lon) };
+  } catch(e) {}
+  return null;
+}
+async function geocodeAllPlaces() {
+  const todo = places.filter(p => !p.deleted && (p.lat == null || p.lon == null));
+  if (!todo.length) { document.getElementById('geo-status').textContent = 'Kaikilla on jo koordinaatit.'; return; }
+  for (let i = 0; i < todo.length; i++) {
+    document.getElementById('geo-status').textContent = 'Haetaan… ' + (i+1) + '/' + todo.length;
+    const c = await geocodeName(todo[i].name);
+    if (c) { todo[i].lat = c.lat; todo[i].lon = c.lon; touch(todo[i]); }
+    await new Promise(r => setTimeout(r, 1100)); // Nominatim-rajoitus
+  }
+  savePlaces();
+  document.getElementById('geo-status').textContent = 'Valmis ✓';
+}
+function placeCoords(name) {
+  const p = places.find(x => !x.deleted && x.name === name);
+  return (p && p.lat != null) ? { lat: p.lat, lon: p.lon } : null;
+}
+async function resolveCoords(name) {
+  return placeCoords(name) || await geocodeName(name);
+}
+async function routeKm(a, b) {
+  // Aja-matka OSRM:n julkisesta palvelusta; jos ei onnistu, linnuntie-arvio ×1,3
+  try {
+    const url = 'https://router.project-osrm.org/route/v1/driving/' + a.lon + ',' + a.lat + ';' + b.lon + ',' + b.lat + '?overview=false';
+    const r = await fetch(url);
+    const d = await r.json();
+    if (d && d.routes && d.routes[0]) return d.routes[0].distance / 1000;
+  } catch(e) {}
+  return havKm(a, b) * 1.3; // karkea arvio jos reititys ei vastaa
+}
+async function autoKm() {
+  const from = (document.getElementById('f-from').value || document.getElementById('f-from-custom').value).trim();
+  const to = (document.getElementById('f-to').value || document.getElementById('f-to-custom').value).trim();
+  if (!from || !to) { alert('Valitse ensin lähtöpaikka ja kohde.'); return; }
+  const btn = document.getElementById('autokm-btn');
+  btn.textContent = '📏 Haetaan…'; btn.disabled = true;
+  const a = await resolveCoords(from);
+  const b = await resolveCoords(to);
+  if (!a || !b) {
+    btn.textContent = '📏 Laske km automaattisesti'; btn.disabled = false;
+    alert('En löytänyt koordinaatteja. Tarkista paikkojen nimet tai hae koordinaatit kohdasta "Hallitse paikkoja".');
+    return;
+  }
+  const km = await routeKm(a, b);
+  document.getElementById('f-km').value = Math.round(km * 10) / 10;
+  btn.textContent = '📏 Laske km automaattisesti'; btn.disabled = false;
+}
+
+function onTypeChange() {
+  const t = document.getElementById('f-type').value;
+  const isJuna = t === 'juna';
+  document.getElementById('field-cost').style.display = isJuna ? '' : 'none';
+  document.getElementById('field-km').style.display = isJuna ? 'none' : '';
+  document.getElementById('field-dir').style.display = isJuna ? 'none' : '';
+}
+
+function applyQuickRoute(i) {
+  const r = QUICK_ROUTES[i];
+  document.getElementById('f-from').value = r.from; document.getElementById('f-from-custom').value='';
+  document.getElementById('f-to').value = r.to; document.getElementById('f-to-custom').value='';
+  document.getElementById('f-type').value = r.type; onTypeChange();
+  if (r.km) document.getElementById('f-km').value = r.km;
+  if (r.cost) document.getElementById('f-cost').value = r.cost;
+  document.getElementById('f-dir').value = r.dir || 'meno';
+  document.querySelectorAll('.quick-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  document.getElementById('f-date').focus();
+}
+
+function getVal(f) {
+  const sel = document.getElementById('f-'+f), custom = document.getElementById('f-'+f+'-custom');
+  return (sel.value || custom.value).trim();
+}
+function addEntry() {
+  const date = document.getElementById('f-date').value;
+  const from = getVal('from'), to = getVal('to');
+  const type = document.getElementById('f-type').value;
+  const isJuna = type === 'juna';
+  const km = isJuna ? 0 : parseFloat(document.getElementById('f-km').value) || 0;
+  const dir = document.getElementById('f-dir').value;
+  const cost = isJuna ? (parseFloat(document.getElementById('f-cost').value) || 0) : 0;
+  const car = document.getElementById('f-car').value.trim();
+  const note = document.getElementById('f-note').value.trim();
+
+  if (!date || !from || !to) { alert('Täytä päivämäärä, lähtöpaikka ja kohde.'); return; }
+  if (!isJuna && km <= 0) { alert('Anna kilometrit.'); return; }
+
+  if (!isJuna && dir === 'split') {
+    // Jaettu edestakainen: työnantaja maksaa menon (työajo), paluu oma vähennys (työmatka)
+    const base = Date.now();
+    entries.push(touch({ id:base.toString(), date, from, to, km, totalKm:km, dir:'meno', type:'tyoajo', cost:0, car, note: note||'työnantajan korvaama suunta', deleted:0 }));
+    entries.push(touch({ id:(base+1).toString(), date, from:to, to:from, km, totalKm:km, dir:'meno', type:'tyomatka', cost:0, car, note: note||'oma verovähennys', deleted:0 }));
+    save(); render();
+    ['f-from','f-to'].forEach(id=>{document.getElementById(id).value='';document.getElementById(id+'-custom').value='';});
+    document.getElementById('f-km').value=''; document.getElementById('f-cost').value=''; document.getElementById('f-note').value='';
+    document.getElementById('f-date').value = today();
+    document.querySelectorAll('.quick-btn').forEach(b=>b.classList.remove('active'));
+    return;
+  }
+
+  const totalKm = (!isJuna && dir==='meno-paluu') ? km*2 : km;
+  const dup = entries.find(e => !e.deleted && e.date===date && e.from===from && e.to===to && e.type===type);
+  if (dup && !confirm('Samalle päivälle on jo sama reitti. Lisätäänkö silti?')) return;
+
+  entries.push(touch({ id:Date.now().toString(), date, from, to, km, totalKm, dir, type, cost, car, note, deleted:0 }));
+  save(); render();
+  ['f-from','f-to'].forEach(id=>{document.getElementById(id).value='';document.getElementById(id+'-custom').value='';});
+  document.getElementById('f-km').value=''; document.getElementById('f-cost').value=''; document.getElementById('f-note').value='';
+  document.getElementById('f-date').value = today();
+  document.querySelectorAll('.quick-btn').forEach(b=>b.classList.remove('active'));
+}
+function del(id) { if(!confirm('Poistetaanko matka?')) return; const e=entries.find(x=>x.id===id); if(e){e.deleted=1; touch(e);} save(); render(); }
+function clearAll() { if(!confirm('Poistetaanko KAIKKI matkat? Ei voi peruuttaa. Tee ensin JSON-varmuuskopio!')) return; entries.forEach(e=>{e.deleted=1; touch(e);}); save(); render(); }
+
+let editingId = null;
+function startEdit(id) { editingId = id; render(); }
+function cancelEdit() { editingId = null; render(); }
+function saveEdit(id) {
+  const e = entries.find(x => x.id===id); if (!e) return;
+  e.date = document.getElementById('ed-date').value;
+  e.from = document.getElementById('ed-from').value.trim();
+  e.to = document.getElementById('ed-to').value.trim();
+  e.note = document.getElementById('ed-note').value.trim();
+  const newType = document.getElementById('ed-type').value;
+  e.type = newType;
+  if (newType === 'juna') {
+    const cEl = document.getElementById('ed-cost');
+    if (cEl) e.cost = parseFloat(cEl.value) || 0;
+  } else {
+    const kEl = document.getElementById('ed-km');
+    if (kEl) e.km = parseFloat(kEl.value) || 0;
+    e.totalKm = e.dir==='meno-paluu' ? e.km*2 : e.km;
+    e.cost = 0;
+  }
+  touch(e);
+  editingId = null; save(); render();
+}
+
+function getFiltered() {
+  const mf = document.getElementById('filter-month').value;
+  const tf = document.getElementById('filter-type').value;
+  return entries.filter(e => !e.deleted && (!mf||e.date.startsWith(mf)) && (!tf||e.type===tf));
+}
+function updateMonthFilter() {
+  const sel = document.getElementById('filter-month'); const cur = sel.value;
+  const months = [...new Set(entries.map(e=>e.date.substring(0,7)))].sort().reverse();
+  sel.innerHTML = '<option value="">Kaikki kuukaudet</option>' + months.map(m=>{
+    const a=m.split('-'); return '<option value="'+m+'" '+(m===cur?'selected':'')+'>'+monthNames[+a[1]-1]+' '+a[0]+'</option>';
+  }).join('');
+}
+function updateStats() {
+  const f = getFiltered();
+  const tyoajo = f.filter(e=>e.type==='tyoajo');
+  const tyoajoKm = tyoajo.reduce((a,e)=>a+e.totalKm,0);
+  let tyoajoEur = 0;
+  const byYear = {};
+  tyoajo.forEach(e => { const y=+e.date.substring(0,4); byYear[y]=(byYear[y]||0)+e.totalKm; });
+  Object.entries(byYear).forEach(([y,km]) => {
+    const r = rateForYear(+y);
+    if (km <= 5000) tyoajoEur += km*r;
+    else tyoajoEur += 5000*r + (km-5000)*(r-0.06);
+  });
+  const juna = f.filter(e=>e.type==='juna');
+  const junaEur = juna.reduce((a,e)=>a+(e.cost||0),0);
+  const tyomatkaKm = f.filter(e=>e.type==='tyomatka').reduce((a,e)=>a+e.totalKm,0);
+
+  document.getElementById('s-count').textContent = f.length;
+  document.getElementById('s-tyoajo-km').textContent = tyoajoKm.toLocaleString('fi-FI');
+  document.getElementById('s-tyoajo-eur').textContent = tyoajoEur.toLocaleString('fi-FI',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+  document.getElementById('s-juna-eur').textContent = junaEur.toLocaleString('fi-FI',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+  document.getElementById('s-juna-count').textContent = juna.length+' matkaa';
+  document.getElementById('s-tyomatka-km').textContent = tyomatkaKm.toLocaleString('fi-FI');
+}
+
+function esc(s){ return (s||'').replace(/"/g,'&quot;'); }
+
+function render() {
+  updateMonthFilter(); updateStats();
+  const tbody = document.getElementById('tbody');
+  let f = getFiltered().sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id));
+  if (!f.length) { tbody.innerHTML='<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">🗺️</div>Ei matkoja.</div></td></tr>'; return; }
+
+  let html='', lastMonth='';
+  f.forEach(e => {
+    const month = e.date.substring(0,7);
+    if (month!==lastMonth) {
+      const a=month.split('-');
+      const mKm = f.filter(x=>x.date.startsWith(month)).reduce((acc,x)=>acc+x.totalKm,0);
+      const mEur = f.filter(x=>x.date.startsWith(month)&&x.type==='juna').reduce((acc,x)=>acc+(x.cost||0),0);
+      html += '<tr class="month-header"><td colspan="10">'+monthNames[+a[1]-1]+' '+a[0]+' — '+mKm.toLocaleString('fi-FI')+' km'+(mEur?', '+mEur.toFixed(2)+' € liput':'')+'</td></tr>';
+      lastMonth = month;
+    }
+    if (editingId === e.id) {
+      const isJuna = e.type==='juna';
+      html += '<tr>'+
+        '<td><input class="edit-input" type="date" id="ed-date" value="'+e.date+'"></td>'+
+        '<td><input class="edit-input" id="ed-from" value="'+esc(e.from)+'"></td>'+
+        '<td><input class="edit-input" id="ed-to" value="'+esc(e.to)+'"></td>'+
+        '<td><select class="edit-input" id="ed-type">'+
+          ['tyoajo','juna','tyomatka','ei'].map(tp => '<option value="'+tp+'" '+(tp===e.type?'selected':'')+'>'+typeLabel[tp]+'</option>').join('')+
+        '</select></td>'+
+        '<td>'+(e.car||'–')+'</td>'+
+        '<td>'+(isJuna?'–':'<input class="edit-input" type="number" step="0.1" id="ed-km" value="'+e.km+'" style="width:70px">')+'</td>'+
+        '<td>'+(isJuna?'–':e.totalKm)+'</td>'+
+        '<td>'+(isJuna?'<input class="edit-input" type="number" step="0.01" id="ed-cost" value="'+(e.cost||0)+'" style="width:70px">':'–')+'</td>'+
+        '<td><input class="edit-input" id="ed-note" value="'+esc(e.note)+'"></td>'+
+        '<td><div class="row-actions"><button class="icon-btn" onclick="saveEdit(\''+e.id+'\')" title="Tallenna">✓</button><button class="icon-btn del" onclick="cancelEdit()" title="Peru">✕</button></div></td>'+
+      '</tr>';
+    } else {
+      html += '<tr>'+
+        '<td>'+e.date.split('-').reverse().join('.')+'</td>'+
+        '<td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(e.from)+'">'+e.from+'</td>'+
+        '<td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(e.to)+'">'+e.to+'</td>'+
+        '<td><span class="badge '+typeBadge[e.type]+'">'+typeLabel[e.type]+'</span></td>'+
+        '<td style="color:#888">'+(e.car||'–')+'</td>'+
+        '<td>'+(e.type==='juna'?'–':e.km+' km')+'</td>'+
+        '<td class="km-total">'+(e.type==='juna'?'–':e.totalKm+' km')+'</td>'+
+        '<td>'+(e.type==='juna'&&e.cost?e.cost.toFixed(2)+' €':'–')+'</td>'+
+        '<td style="color:#888;font-size:12px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(e.note)+'">'+(e.note||'')+'</td>'+
+        '<td><div class="row-actions"><button class="icon-btn" onclick="startEdit(\''+e.id+'\')" title="Muokkaa">✎</button><button class="icon-btn del" onclick="del(\''+e.id+'\')" title="Poista">✕</button></div></td>'+
+      '</tr>';
+    }
+  });
+  tbody.innerHTML = html;
+}
+
+function buildCSV(rows) {
+  const h = ['Päivämäärä','Vko','Lähtö','Kohde','Korvaustyyppi','Auto','Km meno','Km yhteensä','Lipun hinta €','Suunta','Lisätieto'];
+  const days=['Su','Ma','Ti','Ke','To','Pe','La'];
+  const d = rows.map(e=>{ const dt=new Date(e.date); return [
+    e.date.split('-').reverse().join('.'), days[dt.getDay()], e.from, e.to, typeLabel[e.type],
+    e.car||'', e.type==='juna'?'':e.km, e.type==='juna'?'':e.totalKm, e.cost?e.cost.toFixed(2):'',
+    e.dir==='meno-paluu'?'Meno+paluu':'Meno', e.note||''];});
+  return '\uFEFF'+[h,...d].map(r=>r.join(';')).join('\n');
+}
+function dl(content, fn, mime) {
+  const b=new Blob([content],{type:mime}); const u=URL.createObjectURL(b);
+  const a=document.createElement('a'); a.href=u; a.download=fn; a.click(); setTimeout(()=>URL.revokeObjectURL(u),1000);
+}
+function exportCSV() {
+  if(!entries.length){alert('Ei matkoja.');return;}
+  const f=getFiltered().sort((a,b)=>a.date.localeCompare(b.date));
+  const mf=document.getElementById('filter-month').value;
+  dl(buildCSV(f),'ajopaivakirja_'+(mf?mf.replace('-','_'):new Date().getFullYear())+'.csv','text/csv;charset=utf-8;');
+}
+// ===== VEROYHTEENVETO =====
+let erityisalaPref = localStorage.getItem('ajopk_erityisala') === '1';
+function taxParams(y) {
+  if (y >= 2026) return { omavastuu: 720, max: 8400, kmRate: 0.30 }; // alustava, tarkista vero.fi
+  return { omavastuu: 900, max: 7000, kmRate: 0.30 };                // 2024–2025 (vahvistettu)
+}
+function toggleTax() {
+  const s = document.getElementById('tax-section');
+  s.classList.toggle('open');
+  if (s.classList.contains('open')) {
+    const sel = document.getElementById('tax-year');
+    const years = [...new Set(entries.filter(e=>!e.deleted).map(e=>e.date.substring(0,4)))].sort().reverse();
+    if (!years.length) years.push(String(new Date().getFullYear()));
+    sel.innerHTML = years.map(y=>'<option value="'+y+'">'+y+'</option>').join('');
+    document.getElementById('tax-erityisala').checked = erityisalaPref;
+    onTaxYearChange();
+  }
+}
+function onErityisalaChange() {
+  erityisalaPref = document.getElementById('tax-erityisala').checked;
+  localStorage.setItem('ajopk_erityisala', erityisalaPref ? '1' : '0');
+  onTaxYearChange();
+}
+function onTaxYearChange() {
+  const y = parseInt(document.getElementById('tax-year').value);
+  const erityisala = document.getElementById('tax-erityisala').checked;
+  if (erityisala) {
+    document.getElementById('tax-omavastuu').value = 0;
+    document.getElementById('tax-max').value = '';
+    document.getElementById('tax-kmrate').value = 0.27;
+    document.getElementById('tax-omavastuu').disabled = true;
+    document.getElementById('tax-max').disabled = true;
+  } else {
+    const p = taxParams(y);
+    document.getElementById('tax-omavastuu').value = p.omavastuu;
+    document.getElementById('tax-max').value = p.max;
+    document.getElementById('tax-kmrate').value = p.kmRate;
+    document.getElementById('tax-omavastuu').disabled = false;
+    document.getElementById('tax-max').disabled = false;
+  }
+  renderTaxSummary();
+}
+function renderTaxSummary() {
+  const y = document.getElementById('tax-year').value;
+  const erityisala = document.getElementById('tax-erityisala').checked;
+  const omavastuu = erityisala ? 0 : (parseFloat(document.getElementById('tax-omavastuu').value) || 0);
+  const maxRaw = document.getElementById('tax-max').value;
+  const maxV = (erityisala || maxRaw==='') ? Infinity : (parseFloat(maxRaw) || 0);
+  const kmRate = parseFloat(document.getElementById('tax-kmrate').value) || 0;
+  const inclTrain = document.getElementById('tax-incl-train').checked;
+
+  const yr = entries.filter(e => !e.deleted && e.date.startsWith(y));
+  const tyoajo = yr.filter(e=>e.type==='tyoajo');
+  const tyoajoKm = tyoajo.reduce((a,e)=>a+e.totalKm,0);
+  const rate = rateForYear(parseInt(y));
+  let tyoajoEur = tyoajoKm<=5000 ? tyoajoKm*rate : 5000*rate+(tyoajoKm-5000)*(rate-0.06);
+  const junaEur = yr.filter(e=>e.type==='juna').reduce((a,e)=>a+(e.cost||0),0);
+  const tyomatkaKm = yr.filter(e=>e.type==='tyomatka').reduce((a,e)=>a+e.totalKm,0);
+
+  const matkakulutBrutto = tyomatkaKm*kmRate + (inclTrain ? junaEur : 0);
+  let vahennys = Math.max(0, matkakulutBrutto - omavastuu);
+  let capattu = false;
+  if (vahennys > maxV) { vahennys = maxV; capattu = true; }
+
+  const fmt = n => n.toLocaleString('fi-FI',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const fmtkm = n => n.toLocaleString('fi-FI');
+
+  const deductionTitle = erityisala ? 'Matkavähennys erityisalalla (tulonhankkimiskulu)' : 'Työmatkavähennys (oma veroilmoitus)';
+
+  document.getElementById('tax-summary').innerHTML =
+    '<div style="background:#f8f7f3;border-radius:8px;padding:12px 14px">'+
+      '<div style="font-weight:600;margin-bottom:6px">Työnantajan korvaama (verovapaa, ei veroilmoitukseen)</div>'+
+      '<div>🚗 Työajo: <b>'+fmtkm(tyoajoKm)+' km</b> ≈ '+fmt(tyoajoEur)+' € ('+fmt(rate)+' €/km)</div>'+
+      '<div>🚂 Junaliput: <b>'+fmt(junaEur)+' €</b></div>'+
+    '</div>'+
+    '<div style="background:#e6f1fb;border-radius:8px;padding:12px 14px;margin-top:10px">'+
+      '<div style="font-weight:600;margin-bottom:6px">'+deductionTitle+'</div>'+
+      '<div>🏠 Työmatka-km: <b>'+fmtkm(tyomatkaKm)+' km</b></div>'+
+      '<div>Matkakulut: '+fmtkm(tyomatkaKm)+' km × '+fmt(kmRate)+' €'+(inclTrain?' + junaliput '+fmt(junaEur)+' €':'')+' = <b>'+fmt(matkakulutBrutto)+' €</b></div>'+
+      (erityisala ? '<div style="color:#0f6e56;font-size:12px">Erityisala: ei omavastuuta eikä ylärajaa — koko summa vähennetään.</div>'
+                  : '<div>− omavastuu '+fmt(omavastuu)+' €</div>')+
+      '<div style="font-size:17px;margin-top:6px">= Vähennys veroilmoitukseen: <b>'+fmt(vahennys)+' €</b>'+(capattu?' <span style="color:#c0392b">(rajattu enimmäismäärään)</span>':'')+'</div>'+
+      (!erityisala && matkakulutBrutto>0 && matkakulutBrutto<=omavastuu ? '<div style="color:#888;font-size:12px">Matkakulut jäävät alle omavastuun, joten vähennystä ei kerry.</div>':'')+
+    '</div>';
+}
+function exportTaxSummary() {
+  const y = document.getElementById('tax-year').value;
+  const erityisala = document.getElementById('tax-erityisala').checked;
+  const omavastuu = erityisala ? 0 : (parseFloat(document.getElementById('tax-omavastuu').value)||0);
+  const kmRate = parseFloat(document.getElementById('tax-kmrate').value)||0;
+  const inclTrain = document.getElementById('tax-incl-train').checked;
+  const yr = entries.filter(e => !e.deleted && e.date.startsWith(y));
+  const tyoajoKm = yr.filter(e=>e.type==='tyoajo').reduce((a,e)=>a+e.totalKm,0);
+  const rate = rateForYear(parseInt(y));
+  const tyoajoEur = tyoajoKm<=5000 ? tyoajoKm*rate : 5000*rate+(tyoajoKm-5000)*(rate-0.06);
+  const junaEur = yr.filter(e=>e.type==='juna').reduce((a,e)=>a+(e.cost||0),0);
+  const tyomatkaKm = yr.filter(e=>e.type==='tyomatka').reduce((a,e)=>a+e.totalKm,0);
+  const maxRaw = document.getElementById('tax-max').value;
+  const maxV = (erityisala || maxRaw==='') ? Infinity : (parseFloat(maxRaw)||0);
+  const brutto = tyomatkaKm*kmRate + (inclTrain?junaEur:0);
+  const vahennys = Math.min(maxV, Math.max(0, brutto - omavastuu));
+  const rows = [
+    ['Verovuosi', y],
+    ['Erityisala (rakennusala)', erityisala ? 'Kyllä' : 'Ei'],
+    ['Työajo km (työnantaja korvaa)', tyoajoKm],
+    ['Työajo € (arvio)', tyoajoEur.toFixed(2)],
+    ['Junaliput €', junaEur.toFixed(2)],
+    ['Työmatka km (oma)', tyomatkaKm],
+    ['Oman auton €/km', kmRate.toFixed(2)],
+    ['Matkakulut brutto €', brutto.toFixed(2)],
+    ['Omavastuu €', omavastuu.toFixed(2)],
+    ['VÄHENNYS €', isFinite(vahennys)?vahennys.toFixed(2):brutto.toFixed(2)]
+  ];
+  const csv = '\uFEFF' + rows.map(r=>r.join(';')).join('\n');
+  dl(csv, 'veroyhteenveto_'+y+'.csv', 'text/csv;charset=utf-8;');
+}
+
+function exportEmployerReport() {
+  const mf = document.getElementById('filter-month').value;
+  // Vain työnantajan korvaama puoli: työajo (km) + junaliput (€). Ei työmatkaa eikä "ei korvausta".
+  const rows = entries.filter(e => !e.deleted && (e.type==='tyoajo' || e.type==='juna') && (!mf || e.date.startsWith(mf)))
+                      .sort((a,b)=>a.date.localeCompare(b.date));
+  if (!rows.length) { alert('Ei työnantajan korvaamia matkoja valitulla jaksolla.'); return; }
+  const days=['Su','Ma','Ti','Ke','To','Pe','La'];
+  const header = ['Päivämäärä','Vko','Lähtö','Kohde','Tyyppi','Km','Lipun hinta €','Auto','Lisätieto'];
+  let totalKm=0, totalEur=0;
+  const data = rows.map(e=>{
+    const dt=new Date(e.date);
+    if (e.type==='tyoajo') totalKm += e.totalKm; else totalEur += (e.cost||0);
+    return [ e.date.split('-').reverse().join('.'), days[dt.getDay()], e.from, e.to,
+      e.type==='juna'?'Junalippu':'Työajo (auto)',
+      e.type==='juna'?'':e.totalKm, e.cost?e.cost.toFixed(2):'', e.car||'', e.note||'' ];
+  });
+  data.push([]);
+  data.push(['YHTEENSÄ','','','','', totalKm, totalEur?totalEur.toFixed(2):'', '', '']);
+  const csv = '\uFEFF'+[header,...data].map(r=>r.join(';')).join('\n');
+  dl(csv, 'tyonantajan_raportti_'+(mf?mf.replace('-','_'):new Date().getFullYear())+'.csv', 'text/csv;charset=utf-8;');
+}
+function exportJSON() {
+  if(!entries.length){alert('Ei matkoja.');return;}
+  dl(JSON.stringify({version:KEY, exported:new Date().toISOString(), places, entries},null,2),
+    'ajopaivakirja_varmuuskopio_'+today()+'.json','application/json');
+}
+function importJSON(ev) {
+  const file = ev.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!d.entries) throw new Error('Ei matkadataa');
+      if (!confirm('Palautetaanko '+d.entries.length+' matkaa? Nykyiset korvataan.')) return;
+      entries = d.entries.map(e => { if(e.updatedAt==null) e.updatedAt=Date.now(); if(e.deleted==null) e.deleted=0; return e; });
+      if (d.places) { places = d.places.map(p => { if(p.updatedAt==null) p.updatedAt=Date.now(); if(p.deleted==null) p.deleted=0; return p; }); savePlaces(); }
+      save(); renderPlacesUI(); render();
+      alert('Palautettu: '+entries.length+' matkaa.');
+    } catch(err) { alert('Virhe tiedoston luvussa: '+err.message); }
+  };
+  r.readAsText(file);
+  ev.target.value='';
+}
+
+// ===== GOOGLE TIMELINE IMPORT =====
+let tlTrips = [];
+const geoCache = {};
+
+function tlImport(ev) {
+  const f = ev.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    let json;
+    try { json = JSON.parse(r.result); }
+    catch(e) { document.getElementById('tl-results').innerHTML = '<p style="color:#c0392b;font-size:13px">Tiedostoa ei voitu lukea (ei kelvollista JSON-muotoa).</p>'; return; }
+    tlTrips = parseTimeline(json).filter(t => t.date && t.distMeters > 0);
+    tlTrips.sort((a,b) => (b.date+(b.time||'')).localeCompare(a.date+(a.time||'')));
+    tlRender();
+  };
+  r.readAsText(f);
+  ev.target.value = '';
+}
+
+function parseGeo(s) {
+  if (!s) return null;
+  s = String(s).replace(/^geo:/i,'').replace(/°/g,'').trim();
+  const m = s.split(/,\s*/);
+  if (m.length < 2) return null;
+  const la = parseFloat(m[0]), lo = parseFloat(m[1]);
+  if (isNaN(la) || isNaN(lo)) return null;
+  return { lat: la, lon: lo };
+}
+function coord(o) {
+  if (!o) return null;
+  if (typeof o === 'string') return parseGeo(o);
+  if (o.latitudeE7 != null) return { lat: o.latitudeE7/1e7, lon: o.longitudeE7/1e7 };
+  if (o.latLng) return parseGeo(o.latLng);
+  return null;
+}
+function havKm(a, b) {
+  const R=6371, dLat=(b.lat-a.lat)*Math.PI/180, dLon=(b.lon-a.lon)*Math.PI/180;
+  const la1=a.lat*Math.PI/180, la2=b.lat*Math.PI/180;
+  const x=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(x));
+}
+
+function parseTimeline(json) {
+  const trips = [];
+  // Old Takeout format
+  if (json && Array.isArray(json.timelineObjects)) {
+    json.timelineObjects.forEach(o => {
+      const a = o.activitySegment; if (!a) return;
+      const ts = (a.duration && a.duration.startTimestamp) || '';
+      trips.push({ date: ts.substring(0,10), time: ts.substring(11,16), start: coord(a.startLocation), end: coord(a.endLocation),
+        distMeters: Number(a.distance != null ? a.distance : (a.waypointPath && a.waypointPath.distanceMeters) || 0),
+        type: a.activityType || '' });
+    });
+    return trips;
+  }
+  // On-device format: either {semanticSegments:[...]} or a bare array
+  let segs = [];
+  if (Array.isArray(json)) segs = json;
+  else if (json && Array.isArray(json.semanticSegments)) segs = json.semanticSegments;
+
+  segs.forEach(s => {
+    const ts = s.startTime || (s.duration && s.duration.startTimestamp) || '';
+    const date = ts.substring(0,10), time = ts.substring(11,16);
+    if (s.activity) {
+      const a = s.activity;
+      trips.push({ date, time, start: coord(a.start), end: coord(a.end),
+        distMeters: Number(a.distanceMeters || a.distance || 0),
+        type: (a.topCandidate && a.topCandidate.type) || a.type || '' });
+    } else if (Array.isArray(s.timelinePath) && s.timelinePath.length) {
+      const pts = s.timelinePath.map(p => coord(p.point || p)).filter(Boolean);
+      if (pts.length >= 2) {
+        let d = 0;
+        for (let i = 1; i < pts.length; i++) d += havKm(pts[i-1], pts[i]) * 1000;
+        trips.push({ date, time, start: pts[0], end: pts[pts.length-1], distMeters: d, type: 'liikkuminen' });
+      }
+    }
+    // 'visit' = paikallaanolo, ohitetaan matkalistasta
+  });
+  return trips;
+}
+
+function isCar(type) { return /passenger.?vehicle|driving|in.?car|motorcycle|in.?vehicle/i.test(type||''); }
+function tlTypeLabel(type) {
+  if (isCar(type)) return '🚗 Autolla';
+  if (/walk/i.test(type)) return '🚶 Kävely';
+  if (/cycl|bicycl/i.test(type)) return '🚲 Pyörä';
+  if (/train|rail/i.test(type)) return '🚂 Juna';
+  if (/bus/i.test(type)) return '🚌 Bussi';
+  if (/flying|fly/i.test(type)) return '✈️ Lento';
+  if (/liikkuminen/i.test(type)) return '📍 Liikkuminen';
+  return type || '?';
+}
+
+function tlRender() {
+  const box = document.getElementById('tl-results');
+  if (!tlTrips.length) { box.innerHTML = '<p style="color:#888;font-size:13px">Ei matkoja löytynyt tästä tiedostosta. Tarkista että valitsit oikean Timeline.json-tiedoston.</p>'; return; }
+  const cbEl = document.getElementById('tl-onlycar');
+  const onlyCar = cbEl ? cbEl.checked : false;
+  const rows = tlTrips.map((t,i) => ({t,i})).filter(o => !onlyCar || isCar(o.t.type));
+
+  let html = '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">'+
+    '<label style="font-size:13px;display:flex;align-items:center;gap:5px"><input type="checkbox" id="tl-onlycar" '+(onlyCar?'checked':'')+' onchange="tlRender()"> Vain autolla ajetut</label>'+
+    '<select id="tl-type" style="padding:6px 10px;border:1px solid #ddd;border-radius:7px;font-size:13px;font-family:inherit;background:#fafaf8">'+
+      '<option value="tyoajo">→ Työajo</option><option value="tyomatka">→ Työmatka</option><option value="ei">→ Ei korvausta</option>'+
+    '</select>'+
+    '<button class="btn btn-sm" onclick="tlSelectAll(true)">Valitse kaikki</button>'+
+    '<button class="btn btn-sm" onclick="tlSelectAll(false)">Tyhjennä</button>'+
+    '<button class="btn btn-primary btn-sm" onclick="tlAddSelected()">+ Lisää valitut</button>'+
+  '</div>';
+  html += '<div style="max-height:300px;overflow-y:auto;border:1px solid #eee;border-radius:8px"><table style="font-size:13px;width:100%"><tbody>';
+  rows.forEach(o => {
+    const t = o.t;
+    const km = Math.round(t.distMeters/100)/10;
+    html += '<tr>'+
+      '<td style="width:34px;text-align:center"><input type="checkbox" class="tl-cb" data-i="'+o.i+'"></td>'+
+      '<td style="white-space:nowrap">'+t.date.split('-').reverse().join('.')+(t.time?' <span style="color:#aaa">'+t.time+'</span>':'')+'</td>'+
+      '<td style="font-weight:600">'+km.toLocaleString('fi-FI')+' km</td>'+
+      '<td style="color:#888">'+tlTypeLabel(t.type)+'</td>'+
+    '</tr>';
+  });
+  html += '</tbody></table></div>';
+  html += '<div id="tl-progress" style="font-size:13px;color:#888;margin-top:8px"></div>';
+  html += '<p style="font-size:11px;color:#aaa;margin-top:6px">Paikkojen nimet haetaan OpenStreetMapista lisättäessä. Tarkista km ja muokkaa rivejä tarvittaessa taulukosta.</p>';
+  box.innerHTML = html;
+}
+
+function tlSelectAll(v) { document.querySelectorAll('.tl-cb').forEach(c => c.checked = v); }
+
+async function revGeoC(p) {
+  if (!p) return null;
+  const k = p.lat.toFixed(3)+','+p.lon.toFixed(3);
+  if (geoCache[k] !== undefined) return geoCache[k];
+  await new Promise(r => setTimeout(r, 1100));
+  try {
+    const r = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&zoom=16&accept-language=fi&lat='+p.lat+'&lon='+p.lon);
+    const d = await r.json(); const a = d.address || {};
+    const name = [a.road, a.suburb||a.city_district||a.neighbourhood, a.city||a.town||a.municipality||a.village].filter(Boolean).join(', ') || d.display_name || k;
+    geoCache[k] = name; return name;
+  } catch(e) { geoCache[k] = k; return k; }
+}
+
+async function tlAddSelected() {
+  const sel = [...document.querySelectorAll('.tl-cb:checked')].map(c => tlTrips[+c.dataset.i]);
+  if (!sel.length) { alert('Valitse vähintään yksi matka.'); return; }
+  const type = document.getElementById('tl-type').value;
+  const prog = document.getElementById('tl-progress');
+  let added = 0;
+  for (let i = 0; i < sel.length; i++) {
+    const t = sel[i];
+    prog.textContent = 'Haetaan paikkojen nimet… '+(i+1)+'/'+sel.length;
+    const from = await revGeoC(t.start);
+    const to = await revGeoC(t.end);
+    const km = Math.round(t.distMeters/100)/10;
+    entries.push({ id: Date.now().toString()+'_'+i, date: t.date, from: from||'?', to: to||'?', km, dir:'meno', totalKm: km, type, cost:0, car:'', note:'Google Timeline'+(t.time?' '+t.time:''), updatedAt: Date.now(), deleted:0 });
+    added++;
+  }
+  save(); render();
+  prog.textContent = '';
+  alert('Lisätty '+added+' matkaa. Tarkista ne Matkahistoriasta.');
+}
+
+onTypeChange();
+renderPlacesUI();
+render();
+
+// init sync
+if (syncCfg.token) { setSyncStatus('☁ yhdistetään…'); doSync(); }
+else setSyncStatus('🔒 synkronointi pois');
+window.addEventListener('online', () => { if (syncCfg.token) doSync(); });
+
+// Hae toisen laitteen muutokset automaattisesti: 25 s välein, sekä kun palaat sovellukseen
+setInterval(() => {
+  if (syncCfg.token && navigator.onLine && document.visibilityState === 'visible') doSync();
+}, 25000);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && syncCfg.token) doSync();
+});
+window.addEventListener('focus', () => { if (syncCfg.token) doSync(); });
+
+// Varmista että viimeisimmät muutokset lähtevät kun suljet sovelluksen
+window.addEventListener('pagehide', () => {
+  if (!syncCfg.token || location.protocol === 'file:') return;
+  try {
+    navigator.sendBeacon('/api/sync',
+      new Blob([JSON.stringify({ token: syncCfg.token, entries, places })], { type: 'application/json' }));
+  } catch(e) {}
+});
+</script>
+</body>
+</html>
