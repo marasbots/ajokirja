@@ -341,7 +341,11 @@ function saveSyncToken() {
 function mergeRecords(local, remote) {
   const map = {};
   local.forEach(r => map[r.id] = r);
-  (remote || []).forEach(r => { const ex = map[r.id]; if (!ex || (r.updatedAt||0) >= (ex.updatedAt||0)) map[r.id] = r; });
+  (remote || []).forEach(r => { 
+    if (r.deleted) { delete map[r.id]; return; }
+    const ex = map[r.id]; 
+    if (!ex || (r.updatedAt||0) >= (ex.updatedAt||0)) map[r.id] = r; 
+  });
   return Object.values(map);
 }
 async function doSync() {
@@ -986,6 +990,8 @@ render();
 // init sync
 if (syncCfg.token) { setSyncStatus('☁ yhdistetään…'); doSync(); }
 else setSyncStatus('🔒 synkronointi pois');
+const syncInput = document.getElementById('sync-token');
+if (syncInput && syncCfg.token) syncInput.value = syncCfg.token;
 window.addEventListener('online', () => { if (syncCfg.token) doSync(); });
 
 // Hae toisen laitteen muutokset automaattisesti: 25 s välein, sekä kun palaat sovellukseen

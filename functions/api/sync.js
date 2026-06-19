@@ -45,8 +45,8 @@ export async function onRequestPost(context) {
     await upsert(env.DB, 'entries', body.entries);
     await upsert(env.DB, 'places', body.places);
 
-    const ent = await env.DB.prepare("SELECT data FROM entries").all();
-    const pl = await env.DB.prepare("SELECT data FROM places").all();
+    const ent = await env.DB.prepare("SELECT data FROM entries WHERE deleted = 0").all();
+    const pl = await env.DB.prepare("SELECT data FROM places WHERE deleted = 0").all();
 
     return json({
       entries: ent.results.map(r => JSON.parse(r.data)),
